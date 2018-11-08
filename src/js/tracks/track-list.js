@@ -122,7 +122,7 @@ class TrackList extends EventTarget {
   /**
    * Get a Track from the TrackList by a tracks id
    *
-   * @param {string} id - the id of the track to get
+   * @param {String} id - the id of the track to get
    * @method getTrackById
    * @return {Track}
    * @private

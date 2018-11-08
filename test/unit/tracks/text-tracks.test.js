@@ -350,41 +350,31 @@ QUnit.test('removes cuechange event when text track is hidden for emulated track
 
   tt.mode = 'showing';
   this.clock.tick(1);
-  assert.equal(
-    numTextTrackChanges, 1,
-    'texttrackchange should be called once for mode change'
-  );
+  assert.equal(numTextTrackChanges, 1,
+    'texttrackchange should be called once for mode change');
   tt.mode = 'showing';
   this.clock.tick(1);
-  assert.equal(
-    numTextTrackChanges, 2,
-    'texttrackchange should be called once for mode change'
-  );
+  assert.equal(numTextTrackChanges, 2,
+    'texttrackchange should be called once for mode change');
 
   player.tech_.currentTime = function() {
     return 3;
   };
   player.tech_.trigger('timeupdate');
-  assert.equal(
-    numTextTrackChanges, 3,
-    'texttrackchange should be triggered once for the cuechange'
-  );
+  assert.equal(numTextTrackChanges, 3,
+    'texttrackchange should be triggered once for the cuechange');
 
   tt.mode = 'hidden';
   this.clock.tick(1);
-  assert.equal(
-    numTextTrackChanges, 4,
-    'texttrackchange should be called once for the mode change'
-  );
+  assert.equal(numTextTrackChanges, 4,
+    'texttrackchange should be called once for the mode change');
 
   player.tech_.currentTime = function() {
     return 7;
   };
   player.tech_.trigger('timeupdate');
-  assert.equal(
-    numTextTrackChanges, 4,
-    'texttrackchange should be not be called since mode is hidden'
-  );
+  assert.equal(numTextTrackChanges, 4,
+    'texttrackchange should be not be called since mode is hidden');
   player.dispose();
 });
 
@@ -418,11 +408,9 @@ QUnit.test('should return correct remote text track values', function(assert) {
   player.removeRemoteTextTrack(htmlTrackElement.track);
 
   assert.equal(player.remoteTextTracks().length, 1, 'remove text track via method');
-  assert.equal(
-    player.remoteTextTrackEls().length,
-    1,
-    'remove html track element via method'
-  );
+  assert.equal(player.remoteTextTrackEls().length,
+              1,
+              'remove html track element via method');
 
   player.dispose();
 });
@@ -441,38 +429,26 @@ QUnit.test('should uniformly create html track element when adding text track', 
 
   const htmlTrackElement = player.addRemoteTextTrack(track, true);
 
-  assert.equal(
-    htmlTrackElement.kind,
-    htmlTrackElement.track.kind,
-    'verify html track element kind'
-  );
-  assert.equal(
-    htmlTrackElement.src,
-    htmlTrackElement.track.src,
-    'verify html track element src'
-  );
-  assert.equal(
-    htmlTrackElement.srclang,
-    htmlTrackElement.track.language,
-    'verify html track element language'
-  );
-  assert.equal(
-    htmlTrackElement.label,
-    htmlTrackElement.track.label,
-    'verify html track element label'
-  );
-  assert.equal(
-    htmlTrackElement.default,
-    htmlTrackElement.track.default,
-    'verify html track element default'
-  );
+  assert.equal(htmlTrackElement.kind,
+              htmlTrackElement.track.kind,
+              'verify html track element kind');
+  assert.equal(htmlTrackElement.src,
+              htmlTrackElement.track.src,
+              'verify html track element src');
+  assert.equal(htmlTrackElement.srclang,
+              htmlTrackElement.track.language,
+              'verify html track element language');
+  assert.equal(htmlTrackElement.label,
+              htmlTrackElement.track.label,
+              'verify html track element label');
+  assert.equal(htmlTrackElement.default,
+              htmlTrackElement.track.default,
+              'verify html track element default');
 
   assert.equal(player.remoteTextTrackEls().length, 1, 'html track element exist');
-  assert.equal(
-    player.remoteTextTrackEls().getTrackElementByTrack_(htmlTrackElement.track),
-    htmlTrackElement,
-    'verify same html track element'
-  );
+  assert.equal(player.remoteTextTrackEls().getTrackElementByTrack_(htmlTrackElement.track),
+              htmlTrackElement,
+              'verify same html track element');
 
   player.dispose();
 });
@@ -549,21 +525,17 @@ QUnit.test('removeRemoteTextTrack should be able to take both a track and the re
 
   player.removeRemoteTextTrack(htmlTrackElement);
 
-  assert.equal(
-    player.remoteTextTrackEls().length,
-    0,
-    'the track element was removed correctly'
-  );
+  assert.equal(player.remoteTextTrackEls().length,
+              0,
+              'the track element was removed correctly');
 
   htmlTrackElement = player.addRemoteTextTrack(track, true);
   assert.equal(player.remoteTextTrackEls().length, 1, 'html track element exist');
 
   player.removeRemoteTextTrack(htmlTrackElement.track);
-  assert.equal(
-    player.remoteTextTrackEls().length,
-    0,
-    'the track element was removed correctly'
-  );
+  assert.equal(player.remoteTextTrackEls().length,
+              0,
+              'the track element was removed correctly');
   player.dispose();
 });
 

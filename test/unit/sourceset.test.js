@@ -9,10 +9,6 @@ import {getAbsoluteURL} from '../../src/js/utils/url.js';
 const Html5 = videojs.getTech('Html5');
 const wait = 1;
 let qunitFn = 'module';
-const blobSrc = {
-  src: 'blob:something',
-  type: 'video/mp4'
-};
 const testSrc = {
   src: 'http://vjs.zencdn.net/v/oceans.mp4',
   type: 'video/mp4'
@@ -136,20 +132,6 @@ QUnit[qunitFn]('sourceset', function(hooks) {
       });
     });
 
-    QUnit.test('data-setup one blob', function(assert) {
-      const done = assert.async();
-
-      this.mediaEl.setAttribute('data-setup', JSON.stringify({sources: [blobSrc]}));
-      this.player = videojs(this.mediaEl, {
-        enableSourceset: true
-      });
-
-      this.player.one('sourceset', (e) => {
-        validateSource(this.player, [blobSrc], e);
-        done();
-      });
-    });
-
     QUnit.test('data-setup preload auto', function(assert) {
       const done = assert.async();
 
@@ -193,20 +175,6 @@ QUnit[qunitFn]('sourceset', function(hooks) {
       });
     });
 
-    QUnit.test('videojs({sources: [...]}) one blob', function(assert) {
-      const done = assert.async();
-
-      this.player = videojs(this.mediaEl, {
-        enableSourceset: true,
-        sources: [blobSrc]
-      });
-
-      this.player.one('sourceset', (e) => {
-        validateSource(this.player, [blobSrc], e);
-        done();
-      });
-    });
-
     QUnit.test('videojs({sources: [...]}) two sources', function(assert) {
       const done = assert.async();
 
@@ -235,20 +203,6 @@ QUnit[qunitFn]('sourceset', function(hooks) {
       });
     });
 
-    QUnit.test('mediaEl.src = blob;', function(assert) {
-      const done = assert.async();
-
-      this.mediaEl.src = blobSrc.src;
-      this.player = videojs(this.mediaEl, {
-        enableSourceset: true
-      });
-
-      this.player.one('sourceset', (e) => {
-        validateSource(this.player, [{src: blobSrc.src, type: ''}], e);
-        done();
-      });
-    });
-
     QUnit.test('mediaEl.setAttribute("src", ...)"', function(assert) {
       const done = assert.async();
 
@@ -259,20 +213,6 @@ QUnit[qunitFn]('sourceset', function(hooks) {
 
       this.player.one('sourceset', (e) => {
         validateSource(this.player, [testSrc], e);
-        done();
-      });
-    });
-
-    QUnit.test('mediaEl.setAttribute("src", blob)', function(assert) {
-      const done = assert.async();
-
-      this.mediaEl.setAttribute('src', blobSrc.src);
-      this.player = videojs(this.mediaEl, {
-        enableSourceset: true
-      });
-
-      this.player.one('sourceset', (e) => {
-        validateSource(this.player, [{src: blobSrc.src, type: ''}], e);
         done();
       });
     });
@@ -403,20 +343,6 @@ QUnit[qunitFn]('sourceset', function(hooks) {
       this.player.src(testSrc);
     });
 
-    QUnit.test('player.src({...}) one blob', function(assert) {
-      const done = assert.async();
-
-      this.player = videojs(this.mediaEl, {
-        enableSourceset: true
-      });
-      this.player.one('sourceset', (e) => {
-        validateSource(this.player, [blobSrc], e);
-        done();
-      });
-
-      this.player.src(blobSrc);
-    });
-
     QUnit.test('player.src({...}) preload auto', function(assert) {
       const done = assert.async();
 
@@ -461,19 +387,6 @@ QUnit[qunitFn]('sourceset', function(hooks) {
       this.player.tech_.el_.src = testSrc.src;
     });
 
-    QUnit.test('mediaEl.src = blob', function(assert) {
-      const done = assert.async();
-
-      this.player = videojs(this.mediaEl, {enableSourceset: true});
-
-      this.player.one('sourceset', (e) => {
-        validateSource(this.player, [{src: blobSrc.src, type: ''}], e);
-        done();
-      });
-
-      this.player.tech_.el_.src = blobSrc.src;
-    });
-
     QUnit.test('mediaEl.setAttribute("src", ...)"', function(assert) {
       const done = assert.async();
 
@@ -485,19 +398,6 @@ QUnit[qunitFn]('sourceset', function(hooks) {
       });
 
       this.player.tech_.el_.setAttribute('src', testSrc.src);
-    });
-
-    QUnit.test('mediaEl.setAttribute("src", blob)"', function(assert) {
-      const done = assert.async();
-
-      this.player = videojs(this.mediaEl, {enableSourceset: true});
-
-      this.player.one('sourceset', (e) => {
-        validateSource(this.player, [{src: blobSrc.src, type: ''}], e);
-        done();
-      });
-
-      this.player.tech_.el_.setAttribute('src', blobSrc.src);
     });
 
     const appendTypes = [
@@ -770,113 +670,6 @@ QUnit[qunitFn]('sourceset', function(hooks) {
       });
 
       this.player.src(testSrc);
-    });
-
-    QUnit.test('hls -> hls -> blob -> hls', function(assert) {
-      this.totalSourcesets = 5;
-      // we have to force techFaker here as some browsers, ie edge/safari support
-      // native HLS.
-      this.player.options_.techOrder = ['techFaker'];
-      this.player.options_.techFaker = this.player.options_.techFaker || {};
-      const done = assert.async();
-      const m3u8One = {
-        src: 'http://vjs.zencdn.net/v/oceans.m3u8',
-        type: 'application/x-mpegURL'
-      };
-      const blobOne = 'blob:one';
-      const m3u8Two = {
-        src: 'http://vjs.zencdn.net/v/oceans-two.m3u8',
-        type: 'application/x-mpegURL'
-      };
-      const blobTwo = 'blob:two';
-      const setTechFaker = (src) => {
-        this.player.options_.techFaker = this.player.options_.techFaker || {};
-        this.player.tech_.options_ = this.player.tech_.options_ || {};
-        this.player.tech_.options_.sourceset = src;
-        this.player.options_.techFaker.sourceset = src;
-      };
-
-      this.player.one('sourceset', (e1) => {
-        validateSource(this.player, [m3u8One], e1, {event: blobOne, attr: blobOne, prop: blobOne});
-
-        this.player.one('sourceset', (e2) => {
-          validateSource(this.player, [m3u8Two], e2, {event: blobTwo, attr: blobTwo, prop: blobTwo});
-
-          // should change to blobSrc now
-          this.player.one('sourceset', (e3) => {
-            validateSource(this.player, [blobSrc], e3);
-
-            this.player.one('sourceset', (e4) => {
-              validateSource(this.player, [m3u8Two], e2, {event: blobTwo, attr: blobTwo, prop: blobTwo});
-
-              done();
-            });
-
-            setTechFaker(blobTwo);
-            this.player.src(m3u8Two);
-          });
-
-          setTechFaker(blobSrc.src);
-          this.player.src(blobSrc);
-        });
-
-        setTechFaker(blobTwo);
-        this.player.src(m3u8Two);
-      });
-
-      setTechFaker(blobOne);
-      this.player.src(m3u8One);
-    });
-
-    QUnit.test('hls -> mp4 -> hls -> blob', function(assert) {
-      this.totalSourcesets = 5;
-      // we have to force techFaker here as some browsers, ie edge/safari support
-      // native HLS.
-      this.player.options_.techOrder = ['techFaker'];
-      this.player.options_.techFaker = this.player.options_.techFaker || {};
-      const done = assert.async();
-      const m3u8One = {
-        src: 'http://vjs.zencdn.net/v/oceans.m3u8',
-        type: 'application/x-mpegURL'
-      };
-      const blobOne = 'blob:one';
-      const setTechFaker = (src) => {
-        this.player.options_.techFaker = this.player.options_.techFaker || {};
-        this.player.tech_.options_ = this.player.tech_.options_ || {};
-        this.player.tech_.options_.sourceset = src;
-        this.player.options_.techFaker.sourceset = src;
-      };
-
-      this.player.one('sourceset', (e1) => {
-        validateSource(this.player, [m3u8One], e1, {event: blobOne, attr: blobOne, prop: blobOne});
-
-        this.player.one('sourceset', (e2) => {
-          validateSource(this.player, [testSrc], e2);
-
-          // should change to blobSrc now
-          this.player.one('sourceset', (e3) => {
-            validateSource(this.player, [m3u8One], e3, {event: blobOne, attr: blobOne, prop: blobOne});
-
-            this.player.one('sourceset', (e4) => {
-              validateSource(this.player, [blobSrc], e4);
-
-              done();
-            });
-
-            setTechFaker(blobSrc.src);
-            this.player.src(blobSrc);
-          });
-
-          setTechFaker(blobOne);
-          this.player.src(m3u8One);
-        });
-
-        setTechFaker(testSrc.src);
-        this.player.src(testSrc);
-      });
-
-      setTechFaker(blobOne);
-      this.player.src(m3u8One);
     });
 
     QUnit.test('player.src({...}) x2 at the same time', function(assert) {

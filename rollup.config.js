@@ -4,6 +4,7 @@ import babel from 'rollup-plugin-babel';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import json from 'rollup-plugin-json';
+import filesize from 'rollup-plugin-filesize';
 import progress from 'rollup-plugin-progress';
 import ignore from 'rollup-plugin-ignore';
 import alias from 'rollup-plugin-alias';
@@ -19,8 +20,10 @@ const watch = {
 };
 
 const onwarn = (warning) => {
-  // ignore unknow option for --no-progress
-  if (warning.code === 'UNKNOWN_OPTION' && warning.message.indexOf('progress') !== -1) {
+  if (warning.code === 'UNUSED_EXTERNAL_IMPORT' ||
+      warning.code === 'UNRESOLVED_IMPORT' ||
+      (warning.code === 'UNKNOWN_OPTION' &&
+       warning.message.indexOf('progress') !== -1)) {
     return;
   }
 
@@ -42,50 +45,13 @@ const primedBabel = babel({
   exclude: 'node_modules/**(!http-streaming)',
   compact: false,
   presets: [
-    ['@babel/preset-env', {
+    ['es2015', {
       loose: true,
       modules: false
     }]
-  ]
+  ],
+  plugins: ['external-helpers']
 });
-const globals = {
-  browser: {
-    'global': 'window',
-    'global/window': 'window',
-    'global/document': 'document'
-  },
-  module: {
-  },
-  test: {
-    qunit: 'QUnit',
-    qunitjs: 'QUnit',
-    sinon: 'sinon'
-  }
-};
-
-const externals = {
-  browser: Object.keys(globals.browser).concat([
-  ]),
-  module: Object.keys(globals.module).concat([
-    'global',
-    'global/document',
-    'global/window',
-    'xhr',
-    'tsml',
-    'safe-json-parse/tuple',
-    'videojs-vtt.js',
-    'url-toolkit',
-    'm3u8-parser',
-    'mpd-parser',
-    'mux.js',
-    'mux.js/lib/mp4',
-    'mux.js/lib/tools/ts-inspector.js',
-    'mux.js/lib/mp4/probe',
-    'aes-decrypter'
-  ]),
-  test: Object.keys(globals.test).concat([
-  ])
-};
 
 export default cliargs => [
   // standard umd file
@@ -96,10 +62,8 @@ export default cliargs => [
       file: 'dist/video.js',
       name: 'videojs',
       strict: false,
-      banner,
-      globals: globals.browser
+      banner
     },
-    external: externals.browser,
     plugins: [
       alias({
         'video.js': path.resolve(__dirname, './src/js/video.js')
@@ -108,7 +72,8 @@ export default cliargs => [
       json(),
       primedCjs,
       primedBabel,
-      cliargs.progress !== false ? progress() : {}
+      cliargs.progress !== false ? progress() : {},
+      filesize()
     ],
     onwarn,
     watch
@@ -121,17 +86,14 @@ export default cliargs => [
         format: 'es',
         file: 'dist/video.es.js',
         strict: false,
-        banner,
-        globals: globals.module
+        banner
       }, {
         format: 'cjs',
         file: 'dist/video.cjs.js',
         strict: false,
-        banner,
-        globals: globals.module
+        banner
       }
     ],
-    external: externals.module,
     plugins: [
       alias({
         'video.js': path.resolve(__dirname, './src/js/video.js'),
@@ -139,7 +101,8 @@ export default cliargs => [
       }),
       json(),
       primedBabel,
-      cliargs.progress !== false ? progress() : {}
+      cliargs.progress !== false ? progress() : {},
+      filesize()
     ],
     onwarn,
     watch
@@ -152,10 +115,8 @@ export default cliargs => [
       file: 'dist/alt/video.novtt.js',
       name: 'videojs',
       strict: false,
-      banner: compiledLicense(Object.assign({includesVtt: true}, bannerData)),
-      globals: globals.browser
+      banner: compiledLicense(Object.assign({includesVtt: true}, bannerData))
     },
-    external: externals.browser,
     plugins: [
       primedIgnore,
       alias({
@@ -165,7 +126,8 @@ export default cliargs => [
       json(),
       primedCjs,
       primedBabel,
-      cliargs.progress !== false ? progress() : {}
+      cliargs.progress !== false ? progress() : {},
+      filesize()
     ],
     onwarn,
     watch
@@ -177,14 +139,13 @@ export default cliargs => [
       format: 'cjs',
       file: 'core.js',
       strict: false,
-      banner,
-      globals: globals.module
+      banner
     },
-    external: externals.module,
     plugins: [
       json(),
       primedBabel,
-      cliargs.progress !== false ? progress() : {}
+      cliargs.progress !== false ? progress() : {},
+      filesize()
     ],
     onwarn,
     watch
@@ -197,16 +158,15 @@ export default cliargs => [
       name: 'videojs',
       file: 'dist/alt/video.core.js',
       strict: false,
-      banner,
-      globals: globals.browser
+      banner
     },
-    external: externals.browser,
     plugins: [
       primedResolve,
       json(),
       primedCjs,
       primedBabel,
-      cliargs.progress !== false ? progress() : {}
+      cliargs.progress !== false ? progress() : {},
+      filesize()
     ],
     onwarn,
     watch
@@ -219,17 +179,16 @@ export default cliargs => [
       name: 'videojs',
       file: 'dist/alt/video.core.novtt.js',
       strict: false,
-      banner: compiledLicense(Object.assign({includesVtt: true}, bannerData)),
-      globals: globals.browser
+      banner: compiledLicense(Object.assign({includesVtt: true}, bannerData))
     },
-    external: externals.browser,
     plugins: [
       primedIgnore,
       primedResolve,
       json(),
       primedCjs,
       primedBabel,
-      cliargs.progress !== false ? progress() : {}
+      cliargs.progress !== false ? progress() : {},
+      filesize()
     ],
     onwarn,
     watch

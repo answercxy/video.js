@@ -101,6 +101,6 @@ To fix this issue please make sure that all event listeners are cleaned up on di
 
 [flash]: https://github.com/videojs/videojs-flash
 
-[media-types]: https://www.iana.org/assignments/media-types/media-types.xhtml#video
+[media-types]: http://www.iana.org/assignments/media-types/media-types.xhtml#video
 
-[cors]: https://enable-cors.org/
+[cors]: http://enable-cors.org/

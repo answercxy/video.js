@@ -41,7 +41,7 @@ const pluginStorage = {};
  * @param   {string} name
  *          The name of a plugin.
  *
- * @return {boolean}
+ * @returns {boolean}
  *          Whether or not the plugin has been registered.
  */
 const pluginExists = (name) => pluginStorage.hasOwnProperty(name);
@@ -53,7 +53,7 @@ const pluginExists = (name) => pluginStorage.hasOwnProperty(name);
  * @param   {string} name
  *          The name of a plugin.
  *
- * @return {Function|undefined}
+ * @returns {Function|undefined}
  *          The plugin (or undefined).
  */
 const getPlugin = (name) => pluginExists(name) ? pluginStorage[name] : undefined;
@@ -85,7 +85,7 @@ const markPluginAsActive = (player, name) => {
  * @param  {Plugin~PluginEventHash} hash
  *         A plugin event hash.
  *
- * @param  {boolean} [before]
+ * @param  {Boolean} [before]
  *         If true, prefixes the event name with "before". In other words,
  *         use this to trigger "beforepluginsetup" instead of "pluginsetup".
  */
@@ -107,7 +107,7 @@ const triggerSetupEvent = (player, hash, before) => {
  * @param   {Function} plugin
  *          The basic plugin.
  *
- * @return {Function}
+ * @returns {Function}
  *          A wrapper function for the given plugin.
  */
 const createBasicPlugin = function(name, plugin) {
@@ -150,7 +150,7 @@ const createBasicPlugin = function(name, plugin) {
  * @param   {Plugin} PluginSubClass
  *          The advanced plugin.
  *
- * @return {Function}
+ * @returns {Function}
  */
 const createPluginFactory = (name, PluginSubClass) => {
 
@@ -235,7 +235,7 @@ class Plugin {
    * @param   {Object} [hash={}]
    *          An object to be used as event an event hash.
    *
-   * @return {Plugin~PluginEventHash}
+   * @returns {Plugin~PluginEventHash}
    *          An event hash object with provided properties mixed-in.
    */
   getEventHash(hash = {}) {
@@ -256,7 +256,7 @@ class Plugin {
    *          Additional data hash to merge with a
    *          {@link Plugin~PluginEventHash|PluginEventHash}.
    *
-   * @return {boolean}
+   * @returns {boolean}
    *          Whether or not default was prevented.
    */
   trigger(event, hash = {}) {
@@ -316,7 +316,7 @@ class Plugin {
    *          If a string, matches the name of a plugin. If a function, will be
    *          tested directly.
    *
-   * @return {boolean}
+   * @returns {boolean}
    *          Whether or not a plugin is a basic plugin.
    */
   static isBasic(plugin) {
@@ -336,7 +336,7 @@ class Plugin {
    * @param   {Function} plugin
    *          A sub-class of `Plugin` or a function for basic plugins.
    *
-   * @return {Function}
+   * @returns {Function}
    *          For advanced plugins, a factory function for that plugin. For
    *          basic plugins, a wrapper function that initializes the plugin.
    */
@@ -373,12 +373,8 @@ class Plugin {
   /**
    * De-register a Video.js plugin.
    *
-   * @param  {string} name
-   *         The name of the plugin to be de-registered. Must be a string that
-   *         matches an existing plugin.
-   *
-   * @throws {Error}
-   *         If an attempt is made to de-register the base plugin.
+   * @param {string} name
+   *        The name of the plugin to be deregistered.
    */
   static deregisterPlugin(name) {
     if (name === BASE_PLUGIN_NAME) {
@@ -397,7 +393,7 @@ class Plugin {
    *          If provided, should be an array of plugin names. Defaults to _all_
    *          plugin names.
    *
-   * @return {Object|undefined}
+   * @returns {Object|undefined}
    *          An object containing plugin(s) associated with their name(s) or
    *          `undefined` if no matching plugins exist).
    */
@@ -422,7 +418,7 @@ class Plugin {
    * @param   {string} name
    *          The name of a plugin.
    *
-   * @return {string}
+   * @returns {string}
    *          The plugin's version or an empty string.
    */
   static getPluginVersion(name) {

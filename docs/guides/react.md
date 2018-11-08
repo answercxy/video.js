@@ -57,6 +57,7 @@ Don't forget to include the Video.js CSS, located at `video.js/dist/video-js.css
 
 [options]: /docs/guides/options.md
 
+
 ## Using a React Component as a Video JS Component
 
 ```jsx

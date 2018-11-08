@@ -33,12 +33,11 @@ import window from 'global/window';
 /**
  * Resolve and parse the elements of a URL.
  *
- * @function
- * @param    {String} url
- *           The url to parse
+ * @param  {String} url
+ *         The url to parse
  *
- * @return   {url:URLObject}
- *           An object of url details
+ * @return {url:URLObject}
+ *         An object of url details
  */
 export const parseUrl = function(url) {
   const props = ['protocol', 'hostname', 'port', 'pathname', 'search', 'hash', 'host'];
@@ -94,16 +93,16 @@ export const parseUrl = function(url) {
 };
 
 /**
- * Get absolute version of relative URL. Used to tell Flash the correct URL.
+ * Get absolute version of relative URL. Used to tell flash correct URL.
  *
- * @function
- * @param    {string} url
- *           URL to make absolute
  *
- * @return   {string}
- *           Absolute URL
+ * @param  {string} url
+ *         URL to make absolute
  *
- * @see      http://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
+ * @return {string}
+ *         Absolute URL
+ *
+ * @see http://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
  */
 export const getAbsoluteURL = function(url) {
   // Check if absolute URL
@@ -122,13 +121,12 @@ export const getAbsoluteURL = function(url) {
  * Returns the extension of the passed file name. It will return an empty string
  * if passed an invalid path.
  *
- * @function
- * @param    {string} path
- *           The fileName path like '/path/to/file.mp4'
+ * @param {string} path
+ *        The fileName path like '/path/to/file.mp4'
  *
- * @returns  {string}
- *           The extension in lower case or an empty string if no
- *           extension could be found.
+ * @returns {string}
+ *          The extension in lower case or an empty string if no
+ *          extension could be found.
  */
 export const getFileExtension = function(path) {
   if (typeof path === 'string') {
@@ -146,12 +144,11 @@ export const getFileExtension = function(path) {
 /**
  * Returns whether the url passed is a cross domain request or not.
  *
- * @function
- * @param    {string} url
- *           The url to check.
+ * @param {string} url
+ *        The url to check.
  *
- * @return   {boolean}
- *           Whether it is a cross domain request or not.
+ * @return {boolean}
+ *         Whether it is a cross domain request or not.
  */
 export const isCrossOrigin = function(url) {
   const winLoc = window.location;

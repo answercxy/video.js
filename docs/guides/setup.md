@@ -6,10 +6,6 @@
 * [Creating a Player](#creating-a-player)
   * [Automatic Setup](#automatic-setup)
   * [Manual Setup](#manual-setup)
-  * [Getting References to Players](#getting-references-to-players)
-    * [Using videojs](#using-videojs)
-    * [Using videojs.getPlayer()](#using-videojsgetplayer)
-    * [Using videojs.getPlayers() or videojs.players](#using-videojsgetplayers-or-videojsplayers)
 * [Options](#options)
   * [Global Defaults](#global-defaults)
   * [A Note on &lt;video> Tag Attributes](#a-note-on-video-tag-attributes)
@@ -215,14 +211,14 @@ For a discussion of more advanced player workflows, see the [player workflows gu
 
 [boolean-attrs]: https://www.w3.org/TR/2011/WD-html5-20110525/common-microsyntaxes.html#boolean-attributes
 
-[getting-started]: https://videojs.com/getting-started/
+[getting-started]: http://videojs.com/getting-started/
 
-[json]: https://json.org/example.html
+[json]: http://json.org/example.html
 
 [video-attrs]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#Attributes
 
-[videojs]: https://docs.videojs.com/module-videojs.html
+[videojs]: http://docs.videojs.com/module-videojs.html
 
 [w3c-media-events]: https://www.w3.org/2010/05/video/mediaevents.html
 
-[w3c-video]: https://www.w3.org/TR/html5/embedded-content-0.html#the-video-element
+[w3c-video]: http://www.w3.org/TR/html5/embedded-content-0.html#the-video-element

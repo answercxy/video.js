@@ -24,25 +24,6 @@ const isEvented = (object) =>
   ['on', 'one', 'off', 'trigger'].every(k => typeof object[k] === 'function');
 
 /**
- * Adds a callback to run after the evented mixin applied.
- *
- * @param  {Object} object
- *         An object to Add
- * @param  {Function} callback
- *         The callback to run.
- */
-const addEventedCallback = (target, callback) => {
-  if (isEvented(target)) {
-    callback();
-  } else {
-    if (!target.eventedCallbacks) {
-      target.eventedCallbacks = [];
-    }
-    target.eventedCallbacks.push(callback);
-  }
-};
-
-/**
  * Whether a value is a valid event type - non-empty string or array.
  *
  * @private
@@ -345,7 +326,7 @@ const EventedMixin = {
    * @param   {Object} [hash]
    *          An additional object to pass along to listeners.
    *
-   * @return {boolean}
+   * @returns {boolean}
    *          Whether or not the default behavior was prevented.
    */
   trigger(event, hash) {
@@ -362,7 +343,7 @@ const EventedMixin = {
  * @param  {Object} [options={}]
  *         Options for customizing the mixin behavior.
  *
- * @param  {string} [options.eventBusKey]
+ * @param  {String} [options.eventBusKey]
  *         By default, adds a `eventBusEl_` DOM element to the target object,
  *         which is used as an event bus. If the target object already has a
  *         DOM element that should be used, pass its key here.
@@ -385,12 +366,6 @@ function evented(target, options = {}) {
 
   Obj.assign(target, EventedMixin);
 
-  if (target.eventedCallbacks) {
-    target.eventedCallbacks.forEach((callback) => {
-      callback();
-    });
-  }
-
   // When any evented object is disposed, it removes all its listeners.
   target.on('dispose', () => {
     target.off();
@@ -404,4 +379,3 @@ function evented(target, options = {}) {
 
 export default evented;
 export {isEvented};
-export {addEventedCallback};

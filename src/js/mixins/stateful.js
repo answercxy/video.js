@@ -30,7 +30,7 @@ const StatefulMixin = {
    *          A new set of properties to shallow-merge into the plugin state.
    *          Can be a plain object or a function returning a plain object.
    *
-   * @return {Object|undefined}
+   * @returns {Object|undefined}
    *          An object containing changes that occurred. If no changes
    *          occurred, returns `undefined`.
    */
@@ -99,7 +99,7 @@ const StatefulMixin = {
  *          A default set of properties to populate the newly-stateful object's
  *          `state` property.
  *
- * @return {Object}
+ * @returns {Object}
  *          Returns the `target`.
  */
 function stateful(target, defaultState) {

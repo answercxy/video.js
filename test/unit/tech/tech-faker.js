@@ -3,16 +3,12 @@
 import Tech from '../../../src/js/tech/tech.js';
 
 /**
- * @class
+ * @constructor
  */
 class TechFaker extends Tech {
 
   constructor(options, handleReady) {
     super(options, handleReady);
-
-    if (this.options_ && this.options_.sourceset) {
-      this.fakeSourceset();
-    }
     if (!options || options.autoReady !== false) {
       this.triggerReady();
     }
@@ -55,15 +51,7 @@ class TechFaker extends Tech {
   seeking() {
     return false;
   }
-  fakeSourceset() {
-    this.el_.src = this.options_.sourceset;
-    this.el_.setAttribute('src', this.options_.sourceset);
-    super.triggerSourceset(this.options_.sourceset);
-  }
-  src(src) {
-    if (typeof src !== 'undefined' && this.options_ && this.options_.sourceset) {
-      this.fakeSourceset();
-    }
+  src() {
     return 'movie.mp4';
   }
   currentSrc() {

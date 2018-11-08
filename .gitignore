@@ -8,7 +8,6 @@ projects
 test/*.map
 .bunyipconfig.js
 .s3config.json
-.eslintcache
 
 node_modules
 npm-debug.log*
@@ -24,7 +23,7 @@ sandbox/*
 *results.xml
 *.log
 
-test/dist/*
+test/coverage/*
 .coveralls.yml
 .sass-cache
 

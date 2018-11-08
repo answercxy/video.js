@@ -17,21 +17,15 @@ class PlayToggle extends Button {
    * @param {Player} player
    *        The `Player` that this class should be attached to.
    *
-   * @param {Object} [options={}]
+   * @param {Object} [options]
    *        The key/value store of player options.
    */
-  constructor(player, options = {}) {
+  constructor(player, options) {
     super(player, options);
-
-    // show or hide replay icon
-    options.replay = options.replay === undefined || options.replay;
 
     this.on(player, 'play', this.handlePlay);
     this.on(player, 'pause', this.handlePause);
-
-    if (options.replay) {
-      this.on(player, 'ended', this.handleEnded);
-    }
+    this.on(player, 'ended', this.handleEnded);
   }
 
   /**

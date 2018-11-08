@@ -11,7 +11,7 @@
 * [extend()](#extend)
 * [mergeOptions()](#mergeoptions)
 * [bind()](#bind)
-* [registerPlugin()](#registerplugin)
+* [registerPlugin()](#plugin)
 * [xhr()](#xhr)
 
 ## `videojs()`
