@@ -16,6 +16,7 @@ The architecture of the Video.js player is centered around components. The `Play
   * [Using trigger](#using-trigger)
 * [Default Component Tree](#default-component-tree)
 * [Specific Component Details](#specific-component-details)
+  * [Play Toggle](#play-toggle)
   * [Volume Panel](#volume-panel)
   * [Text Track Settings](#text-track-settings)
   * [Resize Manager](#resize-manager)
@@ -49,8 +50,12 @@ Creation:
 ```js
 // adding a button to the player
 var player = videojs('some-video-id');
-var Component = videojs.getComponent('Component');
-var button = new Component(player);
+var Button = videojs.getComponent('Button');
+var button = new Button(player, {
+  clickHandler: function(event) {
+    videojs.log('Clicked');
+  }
+});
 
 console.log(button.el());
 ```
@@ -291,18 +296,20 @@ Player
 ├── TextTrackDisplay
 ├── LoadingSpinner
 ├── BigPlayButton
+├── LiveTracker (has no DOM element)
 ├─┬ ControlBar
 │ ├── PlayToggle
 │ ├── VolumePanel
 │ ├── CurrentTimeDisplay (hidden by default)
 │ ├── TimeDivider (hidden by default)
 │ ├── DurationDisplay (hidden by default)
-│ ├─┬ ProgressControl (hidden during live playback)
+│ ├─┬ ProgressControl (hidden during live playback, except when liveui: true)
 │ │ └─┬ SeekBar
 │ │   ├── LoadProgressBar
 │ │   ├── MouseTimeDisplay
 │ │   └── PlayProgressBar
 │ ├── LiveDisplay (hidden during VOD playback)
+│ ├── SeekToLive (hidden during VOD playback)
 │ ├── RemainingTimeDisplay
 │ ├── CustomControlSpacer (has no UI)
 │ ├── PlaybackRateMenuButton (hidden, unless playback tech supports rate changes)
@@ -310,7 +317,9 @@ Player
 │ ├── DescriptionsButton (hidden, unless there are relevant tracks)
 │ ├── SubtitlesButton (hidden, unless there are relevant tracks)
 │ ├── CaptionsButton (hidden, unless there are relevant tracks)
+│ ├── SubsCapsButton (hidden, unless there are relevant tracks)
 │ ├── AudioTrackButton (hidden, unless there are relevant tracks)
+│ ├── PictureInPictureToggle
 │ └── FullscreenToggle
 ├── ErrorDisplay (hidden, until there is an error)
 ├── TextTrackSettings

@@ -5,15 +5,15 @@ import Tech from './tech.js';
 import * as Dom from '../utils/dom.js';
 import * as Url from '../utils/url.js';
 import log from '../utils/log.js';
-import tsml from 'tsml';
 import * as browser from '../utils/browser.js';
 import document from 'global/document';
 import window from 'global/window';
 import {assign} from '../utils/obj';
 import mergeOptions from '../utils/merge-options.js';
-import toTitleCase from '../utils/to-title-case.js';
+import {toTitleCase} from '../utils/string-cases.js';
 import {NORMAL as TRACK_TYPES} from '../tracks/track-types';
 import setupSourceset from './setup-sourceset';
+import defineLazyProperty from '../utils/define-lazy-property.js';
 
 /**
  * HTML5 Media Controller - Wrapper for HTML5 Media API
@@ -91,8 +91,8 @@ class Html5 extends Tech {
 
     this.proxyNativeTracks_();
     if (this.featuresNativeTextTracks && crossoriginTracks) {
-      log.warn(tsml`Text Tracks are being loaded from another origin but the crossorigin attribute isn't used.
-            This may prevent text tracks from loading.`);
+      log.warn('Text Tracks are being loaded from another origin but the crossorigin attribute isn\'t used.\n' +
+            'This may prevent text tracks from loading.');
     }
 
     // prevent iOS Safari from disabling metadata text tracks during native playback
@@ -110,6 +110,10 @@ class Html5 extends Tech {
     // on iOS, we want to proxy `webkitbeginfullscreen` and `webkitendfullscreen`
     // into a `fullscreenchange` event
     this.proxyWebkitFullscreen_();
+
+    if (browser.IS_IOS) {
+      this.handleIOSHeadphonesDisconnection_();
+    }
 
     this.triggerReady();
   }
@@ -201,6 +205,50 @@ class Html5 extends Tech {
 
       // remove the restoreTrackMode handler in case it wasn't triggered during fullscreen playback
       textTracks.removeEventListener('change', restoreTrackMode);
+    });
+  }
+
+  /**
+   * Handle IOS Headphone disconnection during playback
+   *
+   * @private
+  */
+  handleIOSHeadphonesDisconnection_() {
+    // Fudge factor to account for TimeRanges rounding
+    const TIME_FUDGE_FACTOR = 1 / 30;
+
+    // Comparisons between time values such as current time and the end of the buffered range
+    // can be misleading because of precision differences or when the current media has poorly
+    // aligned audio and video, which can cause values to be slightly off from what you would
+    // expect. This value is what we consider to be safe to use in such comparisons to account
+    // for these scenarios.
+    const SAFE_TIME_DELTA = TIME_FUDGE_FACTOR * 3;
+
+    // If iOS check if we have a real stalled or supend event or
+    // we got stalled/suspend due headphones where disconnected during playback
+    this.on(['stalled', 'suspend'], (e) => {
+      const buffered = this.buffered();
+
+      if (!buffered.length) {
+        return;
+      }
+
+      let extraBuffer = false;
+      const currentTime = this.currentTime();
+
+      // Establish if we have an extra buffer in the current time range playing.
+      for (let i = 0; i < buffered.length; i++) {
+        if (buffered.start(i) <= currentTime &&
+          currentTime < buffered.end(i) + SAFE_TIME_DELTA) {
+          extraBuffer = true;
+          break;
+        }
+      }
+
+      // if tech is not paused, browser has internet connection & player has extraBuffer inside the timeRange
+      if (extraBuffer && !this.paused() && window.navigator.onLine) {
+        this.pause();
+      }
     });
   }
 
@@ -660,6 +708,20 @@ class Html5 extends Tech {
   }
 
   /**
+   * Create a floating video window always on top of other windows so that users may
+   * continue consuming media while they interact with other content sites, or
+   * applications on their device.
+   *
+   * @see [Spec]{@link https://wicg.github.io/picture-in-picture}
+   *
+   * @return {Promise}
+   *         A promise with a Picture-in-Picture window.
+   */
+  requestPictureInPicture() {
+    return this.el_.requestPictureInPicture();
+  }
+
+  /**
    * A getter/setter for the `Html5` Tech's source object.
    * > Note: Please use {@link Html5#setSource}
    *
@@ -874,23 +936,27 @@ class Html5 extends Tech {
 
 /* HTML5 Support Testing ---------------------------------------------------- */
 
-if (Dom.isReal()) {
-
-  /**
-   * Element for testing browser HTML5 media capabilities
-   *
-   * @type {Element}
-   * @constant
-   * @private
-   */
-  Html5.TEST_VID = document.createElement('video');
+/**
+ * Element for testing browser HTML5 media capabilities
+ *
+ * @type {Element}
+ * @constant
+ * @private
+ */
+defineLazyProperty(Html5, 'TEST_VID', function() {
+  if (!Dom.isReal()) {
+    return;
+  }
+  const video = document.createElement('video');
   const track = document.createElement('track');
 
   track.kind = 'captions';
   track.srclang = 'en';
   track.label = 'English';
-  Html5.TEST_VID.appendChild(track);
-}
+  video.appendChild(track);
+
+  return video;
+});
 
 /**
  * Check if HTML5 media is supported by this browser/device.
@@ -1102,15 +1168,12 @@ Html5.Events = [
  * @type {boolean}
  * @default {@link Html5.canControlVolume}
  */
-Html5.prototype.featuresVolumeControl = Html5.canControlVolume();
-
 /**
  * Boolean indicating whether the `Tech` supports muting volume.
  *
  * @type {bolean}
  * @default {@link Html5.canMuteVolume}
  */
-Html5.prototype.featuresMuteControl = Html5.canMuteVolume();
 
 /**
  * Boolean indicating whether the `Tech` supports changing the speed at which the media
@@ -1121,7 +1184,6 @@ Html5.prototype.featuresMuteControl = Html5.canMuteVolume();
  * @type {boolean}
  * @default {@link Html5.canControlPlaybackRate}
  */
-Html5.prototype.featuresPlaybackRate = Html5.canControlPlaybackRate();
 
 /**
  * Boolean indicating whether the `Tech` supports the `sourceset` event.
@@ -1129,7 +1191,35 @@ Html5.prototype.featuresPlaybackRate = Html5.canControlPlaybackRate();
  * @type {boolean}
  * @default
  */
-Html5.prototype.featuresSourceset = Html5.canOverrideAttributes();
+/**
+ * Boolean indicating whether the `HTML5` tech currently supports native `TextTrack`s.
+ *
+ * @type {boolean}
+ * @default {@link Html5.supportsNativeTextTracks}
+ */
+/**
+ * Boolean indicating whether the `HTML5` tech currently supports native `VideoTrack`s.
+ *
+ * @type {boolean}
+ * @default {@link Html5.supportsNativeVideoTracks}
+ */
+/**
+ * Boolean indicating whether the `HTML5` tech currently supports native `AudioTrack`s.
+ *
+ * @type {boolean}
+ * @default {@link Html5.supportsNativeAudioTracks}
+ */
+[
+  ['featuresVolumeControl', 'canControlVolume'],
+  ['featuresMuteControl', 'canMuteVolume'],
+  ['featuresPlaybackRate', 'canControlPlaybackRate'],
+  ['featuresSourceset', 'canOverrideAttributes'],
+  ['featuresNativeTextTracks', 'supportsNativeTextTracks'],
+  ['featuresNativeVideoTracks', 'supportsNativeVideoTracks'],
+  ['featuresNativeAudioTracks', 'supportsNativeAudioTracks']
+].forEach(function([key, fn]) {
+  defineLazyProperty(Html5.prototype, key, () => Html5[fn](), false);
+});
 
 /**
  * Boolean indicating whether the `HTML5` tech currently supports the media element
@@ -1169,40 +1259,18 @@ Html5.prototype.featuresProgressEvents = true;
  */
 Html5.prototype.featuresTimeupdateEvents = true;
 
-/**
- * Boolean indicating whether the `HTML5` tech currently supports native `TextTrack`s.
- *
- * @type {boolean}
- * @default {@link Html5.supportsNativeTextTracks}
- */
-Html5.prototype.featuresNativeTextTracks = Html5.supportsNativeTextTracks();
-
-/**
- * Boolean indicating whether the `HTML5` tech currently supports native `VideoTrack`s.
- *
- * @type {boolean}
- * @default {@link Html5.supportsNativeVideoTracks}
- */
-Html5.prototype.featuresNativeVideoTracks = Html5.supportsNativeVideoTracks();
-
-/**
- * Boolean indicating whether the `HTML5` tech currently supports native `AudioTrack`s.
- *
- * @type {boolean}
- * @default {@link Html5.supportsNativeAudioTracks}
- */
-Html5.prototype.featuresNativeAudioTracks = Html5.supportsNativeAudioTracks();
-
 // HTML5 Feature detection and Device Fixes --------------------------------- //
-const canPlayType = Html5.TEST_VID && Html5.TEST_VID.constructor.prototype.canPlayType;
-const mpegurlRE = /^application\/(?:x-|vnd\.apple\.)mpegurl/i;
+let canPlayType;
 
 Html5.patchCanPlayType = function() {
 
   // Android 4.0 and above can play HLS to some extent but it reports being unable to do so
   // Firefox and Chrome report correctly
   if (browser.ANDROID_VERSION >= 4.0 && !browser.IS_FIREFOX && !browser.IS_CHROME) {
+    canPlayType = Html5.TEST_VID && Html5.TEST_VID.constructor.prototype.canPlayType;
     Html5.TEST_VID.constructor.prototype.canPlayType = function(type) {
+      const mpegurlRE = /^application\/(?:x-|vnd\.apple\.)mpegurl/i;
+
       if (type && mpegurlRE.test(type)) {
         return 'maybe';
       }
@@ -1214,7 +1282,9 @@ Html5.patchCanPlayType = function() {
 Html5.unpatchCanPlayType = function() {
   const r = Html5.TEST_VID.constructor.prototype.canPlayType;
 
-  Html5.TEST_VID.constructor.prototype.canPlayType = canPlayType;
+  if (canPlayType) {
+    Html5.TEST_VID.constructor.prototype.canPlayType = canPlayType;
+  }
   return r;
 };
 
